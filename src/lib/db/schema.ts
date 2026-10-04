@@ -1,32 +1,52 @@
 import { relations, sql } from "drizzle-orm";
 import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 
-export const notes = sqliteTable("notes", {
-  id: text("id").primaryKey(),
-  title: text("title").notNull(),
-  content: text("content").notNull().default(""),
-  status: text("status", { enum: ["not-started", "in-Progress", "Done"] })
-    .notNull()
-    .default("not-started"),
-  createdAt: text("created_at").notNull(),
-  updatedAt: text("updated_at").notNull(),
-});
+export const notes = sqliteTable(
+  "notes",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    content: text("content").notNull().default(""),
+    status: text("status", { enum: ["not-started", "in-progress", "done"] })
+      .notNull()
+      .default("not-started"),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [index("notes_userId_idx").on(table.userId)],
+);
 
-export const chats = sqliteTable("chats", {
-  id: text("id").primaryKey(),
-  noteId: text("note_id").notNull(),
-  title: text("title").notNull().default("New chat"),
-  createdAt: text("created_at").notNull(),
-  updatedAt: text("updated_at").notNull(),
-});
+export const chats = sqliteTable(
+  "chats",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    noteId: text("note_id").notNull(),
+    title: text("title").notNull().default("New chat"),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [index("chats_userId_idx").on(table.userId)],
+);
 
-export const messages = sqliteTable("messages", {
-  id: text("id").primaryKey(),
-  chatId: text("chat_id").notNull(),
-  role: text("role", { enum: ["user", "assistant"] }).notNull(),
-  content: text("content").notNull(),
-  createdAt: text("created_at").notNull(),
-});
+export const messages = sqliteTable(
+  "messages",
+  {
+    id: text("id").primaryKey(),
+    chatId: text("chat_id")
+      .notNull()
+      .references(() => chats.id, { onDelete: "cascade" }),
+    role: text("role", { enum: ["user", "assistant"] }).notNull(),
+    content: text("content").notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (table) => [index("messages_chatId_idx").on(table.chatId)],
+);
 
 export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
@@ -130,5 +150,26 @@ export const accountRelations = relations(account, ({ one }) => ({
   user: one(user, {
     fields: [account.userId],
     references: [user.id],
+  }),
+}));
+
+export const noteRelations = relations(notes, ({ one }) => ({
+  user: one(user, {
+    fields: [notes.userId],
+    references: [user.id],
+  }),
+}));
+
+export const chatRelations = relations(chats, ({ one }) => ({
+  user: one(user, {
+    fields: [chats.userId],
+    references: [user.id],
+  }),
+}));
+
+export const messageRelations = relations(messages, ({ one }) => ({
+  chat: one(chats, {
+    fields: [messages.chatId],
+    references: [chats.id],
   }),
 }));

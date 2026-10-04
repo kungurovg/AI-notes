@@ -32,7 +32,7 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="mx-auto flex flex-col justify-center px-6 max-w-sm h-[calc(100vh-3.5rem)] ">
+    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-6 py-12">
       <h1 className="mb-6 text-2xl font-bold">Sign In</h1>
 
       <form className="flex flex-col gap-3" onSubmit={handleSubmit}>

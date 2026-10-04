@@ -1,17 +1,39 @@
-import { streamText, convertToModelMessages } from "ai";
+import { streamText, convertToModelMessages, type UIMessage } from "ai";
 import { groq } from "@ai-sdk/groq";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { notes, messages as messagesTable } from "@/lib/db/schema";
+import { notes, chats, messages as messagesTable } from "@/lib/db/schema";
+import { requireUser, fail } from "@/lib/session";
+import { chatRequestSchema } from "@/lib/validations";
 
 export async function POST(request: Request) {
-  const { messages, noteId, chatId } = await request.json();
+  const userId = await requireUser();
+  if (userId instanceof Response) return userId;
+
+  const body = chatRequestSchema.parse(await request.json());
+  const { noteId, chatId } = body;
+  // zod подтвердил, что это массив; внутри — сообщения в формате UIMessage от useChat
+  const messages = body.messages as UIMessage[];
 
   let noteContext = "";
   if (noteId) {
-    const [note] = await db.select().from(notes).where(eq(notes.id, noteId));
+    const [note] = await db
+      .select()
+      .from(notes)
+      .where(and(eq(notes.id, noteId), eq(notes.userId, userId)));
     if (note) {
       noteContext = `Текущая заметка:\nЗаголовок: ${note.title}\nСодержание: ${note.content}`;
+    }
+  }
+
+  // Если передан chatId — убеждаемся, что чат принадлежит пользователю
+  if (chatId) {
+    const [chat] = await db
+      .select()
+      .from(chats)
+      .where(and(eq(chats.id, chatId), eq(chats.userId, userId)));
+    if (!chat) {
+      return fail("Чат не найден", 404);
     }
   }
 

@@ -1,19 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import { AppHeader } from "@/components/layout/app-header";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { AppHeader } from "@/components/layout/app-header";
+import { AppSidebar } from "@/components/layout/app-sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin", "cyrillic"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -24,11 +21,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="en"
+      lang="ru"
+      className={`${inter.variable} h-full antialiased`}
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full font-sans">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -37,8 +34,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           <QueryProvider>
             <SidebarProvider>
-              <AppHeader />
-              <main className="flex-1"> {children} </main>
+              <AppSidebar />
+              <SidebarInset>
+                <AppHeader />
+                <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+              </SidebarInset>
             </SidebarProvider>
           </QueryProvider>
         </ThemeProvider>

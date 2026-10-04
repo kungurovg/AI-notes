@@ -1,4 +1,4 @@
-"use client ";
+"use client";
 
 import { useAppStore } from "@/store/app-store";
 import { Button } from "../ui/button";

@@ -3,8 +3,10 @@ import { defineConfig } from "drizzle-kit";
 export default defineConfig({
   schema: "./src/lib/db/schema.ts",
   out: "./drizzle",
-  dialect: "sqlite",
+  // dialect "turso" = libsql: локально файл, на проде — удалённая Turso-БД по URL
+  dialect: "turso",
   dbCredentials: {
-    url: "./notes.db",
+    url: process.env.TURSO_DATABASE_URL ?? "./notes.db",
+    authToken: process.env.TURSO_AUTH_TOKEN,
   },
 });

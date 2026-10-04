@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 export function ChatsList() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const searchQuery = useAppStore((state) => state.searchQuery);
   const selectedChatId = useAppStore((state) => state.selectedChatId);
   const selectChat = useAppStore((state) => state.selectChat);
 
@@ -30,16 +31,23 @@ export function ChatsList() {
     },
   });
 
+  const lowerQuery = searchQuery.trim().toLowerCase();
+  const isSearching = lowerQuery.length > 0;
+
   if (isLoading) {
     return (
       <p className="px-2 py-1 text-xs text-muted-foreground">Loading...</p>
     );
   }
 
-  if (chats.length === 0) {
+  const filtered = isSearching
+    ? chats.filter((chat) => (chat.title || "").toLowerCase().includes(lowerQuery))
+    : chats;
+
+  if (filtered.length === 0) {
     return (
       <p className="px-2 py-4 text-center text-xs text-muted-foreground">
-        No chats yet
+        {isSearching ? "Nothing found" : "No chats yet"}
       </p>
     );
   }
@@ -51,7 +59,7 @@ export function ChatsList() {
 
   return (
     <div className="flex flex-col gap-0.5">
-      {chats.map((chat) => (
+      {filtered.map((chat) => (
         <div
           key={chat.id}
           className={cn(
@@ -85,3 +93,4 @@ export function ChatsList() {
     </div>
   );
 }
+

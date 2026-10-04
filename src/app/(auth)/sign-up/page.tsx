@@ -37,7 +37,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-3.5rem)] max-w-sm flex-col justify-center px-6 ">
+    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-6 py-12">
       <h1 className="mb-6 text-2xl font-bold"> Registration</h1>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
