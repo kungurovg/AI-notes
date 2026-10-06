@@ -26,7 +26,9 @@ export const chats = sqliteTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    noteId: text("note_id").notNull(),
+    noteId: text("note_id").references(() => notes.id, {
+      onDelete: "cascade",
+    }),
     title: text("title").notNull().default("New chat"),
     createdAt: text("created_at").notNull(),
     updatedAt: text("updated_at").notNull(),

@@ -1,19 +1,18 @@
-import { and, eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { chats, messages } from "@/lib/db/schema";
+import { messages, chats } from "@/lib/db/schema";
 import { requireUser, fail } from "@/lib/session";
 import { createMessageSchema } from "@/lib/validations";
 
 export async function GET(request: Request) {
-  const userId = await requireUser();
-  if (userId instanceof Response) return userId;
+  const userCheck = await requireUser();
+  if (userCheck instanceof Response) return userCheck;
+  const userId = userCheck;
 
   const { searchParams } = new URL(request.url);
   const chatId = searchParams.get("chatId");
 
-  if (!chatId) {
-    return fail("chatId обязателен", 400);
-  }
+  if (!chatId) return fail("chatId обязателен", 400);
 
   // Проверяем, что чат принадлежит пользователю
   const [chat] = await db
@@ -21,40 +20,39 @@ export async function GET(request: Request) {
     .from(chats)
     .where(and(eq(chats.id, chatId), eq(chats.userId, userId)));
 
-  if (!chat) {
-    return fail("Чат не найден", 404);
-  }
+  if (!chat) return fail("Чат не найден", 404);
 
   const chatMessages = await db
     .select()
     .from(messages)
-    .where(eq(messages.chatId, chatId))
-    .orderBy(messages.createdAt);
+    .where(eq(messages.chatId, chatId));
 
   return Response.json(chatMessages);
 }
 
 export async function POST(request: Request) {
-  const userId = await requireUser();
-  if (userId instanceof Response) return userId;
+  const userCheck = await requireUser();
+  if (userCheck instanceof Response) return userCheck;
+  const userId = userCheck;
 
-  const body = createMessageSchema.parse(await request.json());
+  const body = await request.json();
+  const parsed = createMessageSchema.safeParse(body);
+  if (!parsed.success) return fail("Неверные данные", 400);
 
-  // Проверяем, что чат принадлежит пользователю
+  // Проверяем владельца чата
   const [chat] = await db
     .select()
     .from(chats)
-    .where(and(eq(chats.id, body.chatId), eq(chats.userId, userId)));
+    .where(and(eq(chats.id, parsed.data.chatId), eq(chats.userId, userId)));
 
-  if (!chat) {
-    return fail("Чат не найден", 404);
-  }
+  if (!chat) return fail("Чат не найден", 404);
 
+  // Роль всегда 'user' — клиент не может подделать
   const newMessage = {
     id: crypto.randomUUID(),
-    chatId: body.chatId,
-    role: body.role,
-    content: body.content,
+    chatId: parsed.data.chatId,
+    role: "user" as const,
+    content: parsed.data.content,
     createdAt: new Date().toISOString(),
   };
 

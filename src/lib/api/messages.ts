@@ -14,13 +14,12 @@ export async function fetchMessages(chatId: string): Promise<Message[]> {
 
 export async function saveMessage(
   chatId: string,
-  role: "user" | "assistant",
   content: string,
 ): Promise<Message> {
   const res = await fetch("/api/messages", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chatId, role, content }),
+    body: JSON.stringify({ chatId, content }),
   });
   if (!res.ok) throw new Error("Failed to save message");
   return res.json();

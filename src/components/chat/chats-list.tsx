@@ -23,7 +23,7 @@ export function ChatsList() {
     mutationFn: deleteChat,
     onSuccess: (_, deletedId) => {
       queryClient.invalidateQueries({ queryKey: ["chats"] });
-      // Если удалили активный чат — уходим на главную
+      queryClient.removeQueries({ queryKey: ["messages", deletedId] });
       if (selectedChatId === deletedId) {
         selectChat(null);
         router.push("/");
@@ -41,7 +41,9 @@ export function ChatsList() {
   }
 
   const filtered = isSearching
-    ? chats.filter((chat) => (chat.title || "").toLowerCase().includes(lowerQuery))
+    ? chats.filter((chat) =>
+        (chat.title || "").toLowerCase().includes(lowerQuery),
+      )
     : chats;
 
   if (filtered.length === 0) {
@@ -78,7 +80,6 @@ export function ChatsList() {
             </span>
           </button>
 
-          {/* Кнопка удаления — появляется при hover */}
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -86,11 +87,10 @@ export function ChatsList() {
             }}
             className="shrink-0 rounded p-1 opacity-0 transition-opacity hover:bg-destructive/10 group-hover:opacity-100"
           >
-            <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+            <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
           </button>
         </div>
       ))}
     </div>
   );
 }
-

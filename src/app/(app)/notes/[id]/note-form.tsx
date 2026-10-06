@@ -49,7 +49,7 @@ export function NoteForm({ note }: Props) {
   }, [debouncedTitle, debouncedContent]);
 
   return (
-    <div className="mx-auto max-w-[1600px] p-8">
+    <div className="mx-auto w-full max-w-2xl p-8">
       <Button
         variant="ghost"
         size="sm"
@@ -86,7 +86,7 @@ export function NoteForm({ note }: Props) {
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="Start Typing..."
-        className="min-h-[32rem] resize-none border-none text-lg leading-relaxed shadow-none focus-visible:ring-0"
+        className="min-h-128 resize-none border-none text-lg leading-relaxed shadow-none focus-visible:ring-0"
       />
 
       <div className="mt-6 flex justify-end">

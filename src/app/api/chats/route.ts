@@ -31,7 +31,7 @@ export async function POST(request: Request) {
   const newChat = {
     id: crypto.randomUUID(),
     userId,
-    noteId: body.noteId ?? "general",
+    noteId: body.noteId ?? null,
     title: body.title ?? "New chat",
     createdAt: now,
     updatedAt: now,

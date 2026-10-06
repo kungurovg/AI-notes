@@ -4,7 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { ArrowUp, Sparkles } from "lucide-react";
+import { ArrowUp, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAppStore } from "@/store/app-store";
@@ -29,6 +29,7 @@ export function ChatPanel({ initialPrompt }: Props = {}) {
     }),
     onFinish: () => {
       queryClient.invalidateQueries({ queryKey: ["chats"] });
+      queryClient.invalidateQueries({ queryKey: ["messages", selectedChatId] });
     },
   });
 
@@ -38,14 +39,22 @@ export function ChatPanel({ initialPrompt }: Props = {}) {
     enabled: !!selectedChatId,
   });
 
+  // Автоотправка initialPrompt — только один раз на чат
   useEffect(() => {
     if (!initialPrompt || sentPromptRef.current || !selectedChatId) return;
     sentPromptRef.current = true;
     sendMessage({ text: initialPrompt });
   }, [initialPrompt, selectedChatId, sendMessage]);
 
+  // Сбрасываем флаг при смене чата
+  useEffect(() => {
+    sentPromptRef.current = false;
+  }, [selectedChatId]);
+
+  // Загрузка истории — только если сообщений ещё нет в useChat
   useEffect(() => {
     if (!selectedChatId || savedMessages.length === 0) return;
+    if (messages.length > 0) return;
     setMessages(
       savedMessages.map((m) => ({
         id: m.id,
@@ -53,7 +62,7 @@ export function ChatPanel({ initialPrompt }: Props = {}) {
         parts: [{ type: "text" as const, text: m.content }],
       })),
     );
-  }, [selectedChatId, savedMessages, setMessages]);
+  }, [selectedChatId, savedMessages, setMessages, messages.length]);
 
   const isActive = status === "streaming" || status === "submitted";
 
@@ -62,18 +71,18 @@ export function ChatPanel({ initialPrompt }: Props = {}) {
     if (!input.trim() || !selectedChatId) return;
 
     const text = input.trim();
-    await saveMessage(selectedChatId, "user", text);
+    await saveMessage(selectedChatId, text);
     sendMessage({ text });
     setInput("");
   };
 
   return (
-    <div className="flex flex-col h-full border rounded-2xl ">
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl border">
       <div className="flex-1 overflow-y-auto px-4 py-6">
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-accent">
-              <Sparkles className="h-5 w-5 text-muted-foreground" />
+              <Bot className="h-5 w-5 text-muted-foreground" />
             </div>
             <h3 className="mb-2 text-xl font-semibold">Hey!</h3>
             <p className="max-w-sm text-center text-sm text-muted-foreground">
@@ -94,16 +103,17 @@ export function ChatPanel({ initialPrompt }: Props = {}) {
         <form className="mx-auto max-w-2xl" onSubmit={handleSubmit}>
           <div className="relative">
             <Textarea
-              className="resize-none border shadow-none min-h-20 bg-transparent px-4 py-3 pr-12"
+              className="min-h-20 resize-none border bg-transparent px-4 py-3 pr-12 shadow-none focus-visible:ring-0"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask question"
               rows={1}
+              disabled={!selectedChatId || isActive}
             />
             <Button
               type="submit"
               size="icon"
-              className="absolute bottom-2 right-2 h-8 w-8 rounded-full bg-blue-500 text-white hover:bg-blue-600"
+              className="absolute bottom-2 right-2 h-8 w-8 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
               disabled={!input.trim() || isActive || !selectedChatId}
             >
               <ArrowUp className="h-4 w-4" />
