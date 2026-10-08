@@ -20,7 +20,6 @@ export const createChatSchema = z.object({
   title: z.string().trim().max(200).optional(),
 });
 
-// Роль убрана — сервер ставит её сам
 export const createMessageSchema = z.object({
   chatId: z.string().trim().min(1),
   content: z.string().trim().min(1).max(20_000),

@@ -13,10 +13,6 @@ type Props = {
   className?: string;
 };
 
-/**
- * Collapsible section for the sidebar (Notes / Chats).
- * Wraps a SidebarGroup so the label and body stay aligned with the rest.
- */
 export function SidebarCollapsible({
   label,
   icon,

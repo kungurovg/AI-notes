@@ -3,7 +3,7 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowUp, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -39,19 +39,16 @@ export function ChatPanel({ initialPrompt }: Props = {}) {
     enabled: !!selectedChatId,
   });
 
-  // Автоотправка initialPrompt — только один раз на чат
   useEffect(() => {
     if (!initialPrompt || sentPromptRef.current || !selectedChatId) return;
     sentPromptRef.current = true;
     sendMessage({ text: initialPrompt });
   }, [initialPrompt, selectedChatId, sendMessage]);
 
-  // Сбрасываем флаг при смене чата
   useEffect(() => {
     sentPromptRef.current = false;
   }, [selectedChatId]);
 
-  // Загрузка истории — только если сообщений ещё нет в useChat
   useEffect(() => {
     if (!selectedChatId || savedMessages.length === 0) return;
     if (messages.length > 0) return;
@@ -66,7 +63,7 @@ export function ChatPanel({ initialPrompt }: Props = {}) {
 
   const isActive = status === "streaming" || status === "submitted";
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!input.trim() || !selectedChatId) return;
 

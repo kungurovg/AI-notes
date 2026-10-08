@@ -50,7 +50,6 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="none">
-      {/* Кнопка закрытия + поиск */}
       <SidebarHeader>
         <div className="flex items-center justify-between px-2 pt-2">
           <span className="text-sm font-semibold">AI-Notes</span>
@@ -69,9 +68,7 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
 
-      {/* Заметки и Чаты */}
       <SidebarContent>
-        {/* Быстрая навигация */}
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
@@ -89,15 +86,19 @@ export function AppSidebar() {
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Сворачиваемый список заметок */}
-        <SidebarCollapsible label="Notes" icon={<FileText className="h-4 w-4 text-muted-foreground" />}>
+        <SidebarCollapsible
+          label="Notes"
+          icon={<FileText className="h-4 w-4 text-muted-foreground" />}
+        >
           <div className="px-2">
             <NotesList />
           </div>
         </SidebarCollapsible>
 
-        {/* Сворачиваемый список чатов */}
-        <SidebarCollapsible label="Chats" icon={<MessageSquare className="h-4 w-4 text-muted-foreground" />}>
+        <SidebarCollapsible
+          label="Chats"
+          icon={<MessageSquare className="h-4 w-4 text-muted-foreground" />}
+        >
           <div className="flex flex-col gap-2 px-2">
             <CreateChatButton />
             <ChatsList />
@@ -105,11 +106,9 @@ export function AppSidebar() {
         </SidebarCollapsible>
       </SidebarContent>
 
-      {/* Пользователь */}
       <SidebarFooter>
         <div className="flex items-center justify-between gap-2 border-t p-2">
           <div className="flex min-w-0 items-center gap-2">
-            {/* Аватар с инициалами вместо generic-иконки */}
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
               {initials}
             </div>
@@ -117,9 +116,7 @@ export function AppSidebar() {
               <p className="truncate text-sm leading-tight">
                 {user?.name ?? "Guest"}
               </p>
-              <p className="truncate text-xs text-muted-foreground">
-                {email}
-              </p>
+              <p className="truncate text-xs text-muted-foreground">{email}</p>
             </div>
           </div>
           <Button
@@ -136,4 +133,3 @@ export function AppSidebar() {
     </Sidebar>
   );
 }
-
