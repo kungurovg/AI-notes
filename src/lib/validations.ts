@@ -30,3 +30,7 @@ export const chatRequestSchema = z.object({
   noteId: z.string().trim().max(100).nullable().optional(),
   chatId: z.string().trim().max(100).nullable().optional(),
 });
+
+export const updateChatSchema = z.object({
+  title: z.string().trim().min(1).max(200),
+});

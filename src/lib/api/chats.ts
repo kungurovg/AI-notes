@@ -27,3 +27,16 @@ export async function deleteChat(id: string): Promise<void> {
   const res = await fetch(`/api/chats/${id}`, { method: "DELETE" });
   if (!res.ok) throw new Error("Failed to delete chat");
 }
+
+export async function updateChat(
+  id: string,
+  patch: { title: string },
+): Promise<Chat> {
+  const res = await fetch(`/api/chats/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(patch),
+  });
+  if (!res.ok) throw new Error("failed to update chat");
+  return res.json();
+}
