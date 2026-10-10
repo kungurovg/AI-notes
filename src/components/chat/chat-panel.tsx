@@ -30,6 +30,7 @@ export function ChatPanel({ initialPrompt }: Props = {}) {
     onFinish: () => {
       queryClient.invalidateQueries({ queryKey: ["chats"] });
       queryClient.invalidateQueries({ queryKey: ["messages", selectedChatId] });
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
     },
   });
 
